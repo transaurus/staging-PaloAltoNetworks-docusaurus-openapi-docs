@@ -1,0 +1,820 @@
+openapi: 3.1.0
+info:
+  title: AllOf Variations API
+  description: Demonstrates various allOf schema combinations.
+  version: 1.0.0
+servers:
+  - url: https://api.example.com/v1
+    description: Example API server
+tags:
+  - name: allOf
+    description: allOf tests
+paths:
+  /multiple-allof-nested:
+    get:
+      tags:
+        - allOf
+      summary: Multiple allOf with Nested Properties
+      description: |
+        Schema:
+        ```yaml
+        allOf:
+          - type: object
+            properties:
+              outerProp1:
+                type: object
+                properties:
+                  innerProp1:
+                    type: string
+          - type: object
+            properties:
+              outerProp2:
+                type: object
+                properties:
+                  innerProp2:
+                    type: number
+        ```
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      outerProp1:
+                        type: object
+                        properties:
+                          innerProp1:
+                            type: string
+                  - type: object
+                    properties:
+                      outerProp2:
+                        type: object
+                        properties:
+                          innerProp2:
+                            type: number
+
+  /allof-shared-required:
+    get:
+      tags:
+        - allOf
+      summary: allOf with Shared Required Properties
+      description: |
+        Schema:
+        ```yaml
+        allOf:
+          - type: object
+            properties:
+              sharedProp:
+                type: string
+            required: [sharedProp]
+          - type: object
+            properties:
+              anotherProp:
+                type: number
+            required: [anotherProp]
+        ```
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      sharedProp:
+                        type: string
+                    required: [sharedProp]
+                  - type: object
+                    properties:
+                      anotherProp:
+                        type: number
+                    required: [anotherProp]
+
+  /allof-deep-merging:
+    get:
+      tags:
+        - allOf
+      summary: allOf with Deep Merging
+      description: |
+        Schema:
+        ```yaml
+        allOf:
+          - type: object
+            properties:
+              deepProp:
+                type: object
+                properties:
+                  innerProp1:
+                    type: string
+          - type: object
+            properties:
+              deepProp:
+                type: object
+                properties:
+                  innerProp2:
+                    type: number
+        ```
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      deepProp:
+                        type: object
+                        properties:
+                          innerProp1:
+                            type: string
+                  - type: object
+                    properties:
+                      deepProp:
+                        type: object
+                        properties:
+                          innerProp2:
+                            type: number
+
+  /allof-same-level-properties:
+    get:
+      tags:
+        - allOf
+      summary: allOf with Same-Level Properties
+      description: |
+        Schema:
+        ```yaml
+        allOf:
+          - type: object
+            properties:
+              allOfProp1:
+                type: string
+              allOfProp2:
+                type: string
+        properties:
+          parentProp1:
+            type: string
+          parentProp2:
+            type: string
+        ```
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      allOfProp1:
+                        type: string
+                      allOfProp2:
+                        type: string
+                properties:
+                  parentProp1:
+                    type: string
+                  parentProp2:
+                    type: string
+
+  /allof-array-items:
+    get:
+      tags:
+        - allOf
+      summary: allOf with Array Items
+      description: |
+        A list of books demonstrating allOf with items as children.
+
+        Schema:
+        ```yaml
+        type: array
+        items:
+          $ref: '#/components/schemas/Book'
+        ```
+
+        Schema Components:
+        ```yaml
+        BookBase:
+          type: object
+          required:
+            - id
+            - title
+            - author
+          properties:
+            id:
+              type: integer
+              format: int64
+              description: Unique identifier for the book
+            title:
+              type: string
+              description: The title of the book
+            author:
+              type: string
+              description: The author of the book
+
+        AdditionalBookInfo:
+          type: object
+          properties:
+            publishedDate:
+              type: string
+              format: date
+              description: The date the book was published
+            genre:
+              type: string
+              description: The genre of the book
+            tags:
+              type: array
+              items:
+                type: string
+              description: Tags associated with the book
+
+        Book:
+          allOf:
+            - $ref: '#/components/schemas/BookBase'
+            - $ref: '#/components/schemas/AdditionalBookInfo'
+        ```
+      responses:
+        "200":
+          description: A list of books
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Book"
+
+  /allof-with-properties-in-array-item:
+    get:
+      tags:
+        - allOf
+      summary: allOf with Properties in Array Item
+      description: |
+        A list of books demonstrating allOf with properties in array item.
+
+        Schema:
+        ```yaml
+        type: array
+        items:
+          $ref: '#/components/schemas/Book'
+        ```
+
+        Schema Components:
+        ```yaml
+        BookBase:
+          type: object
+          required:
+            - id
+            - title
+            - author
+          properties:
+            id:
+              type: integer
+              format: int64
+              description: Unique identifier for the book
+            title:
+              type: string
+              description: The title of the book
+            author:
+              type: string
+              description: The author of the book
+
+        AdditionalBookInfo:
+          type: object
+          properties:
+            publishedDate:
+              type: string
+              format: date
+              description: The date the book was published
+            genre:
+              type: string
+              description: The genre of the book
+            tags:
+              type: array
+              items:
+                type: string
+              description: Tags associated with the book
+
+        CategorizedBook:
+          allOf:
+            - $ref: '#/components/schemas/BookBase'
+            - $ref: '#/components/schemas/AdditionalBookInfo'
+          properties:
+            category:
+              type: string
+              description: The category of the book
+        ```
+      responses:
+        "200":
+          description: A list of books
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategorizedBook"
+
+  /allof-nested:
+    get:
+      tags:
+        - allOf
+      summary: allOf with Nested allOf
+      description: |
+        An example demonstrating nested allOf within allOf.
+
+        Schema:
+        ```yaml
+        allOf:
+          - type: object
+            properties:
+              outerProp:
+                type: object
+                allOf:
+                  - type: object
+                    properties:
+                      innerProp1:
+                        type: string
+                  - type: object
+                    properties:
+                      innerProp2:
+                        type: number
+          - type: object
+            properties:
+              otherOuterProp:
+                type: string
+        ```
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      outerProp:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              innerProp1:
+                                type: string
+                          - type: object
+                            properties:
+                              innerProp2:
+                                type: number
+                  - type: object
+                    properties:
+                      otherOuterProp:
+                        type: string
+
+  /allof-parent-required:
+    get:
+      tags:
+        - allOf
+      summary: allOf inherits parent required
+      description: |
+        Parent object marks the "pet" property as required while its schema is composed via allOf.
+
+        Schema:
+        ```yaml
+        type: object
+        properties:
+          pet:
+            allOf:
+              - type: object
+                properties:
+                  name:
+                    type: string
+              - type: object
+                properties:
+                  age:
+                    type: integer
+        required: [pet]
+        ```
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pet:
+                    allOf:
+                      - type: object
+                        properties:
+                          name:
+                            type: string
+                      - type: object
+                        properties:
+                          age:
+                            type: integer
+                required:
+                  - pet
+
+  /allof-enum-parameter:
+    get:
+      tags:
+        - allOf
+      summary: allOf with Enum Parameter
+      description: |
+        Demonstrates that enum parameters wrapped in allOf should render as a dropdown/combobox
+        instead of a text input.
+
+        Parameter Schema:
+        ```yaml
+        name: status
+        in: query
+        schema:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/TaskStatus'
+        ```
+
+        Where TaskStatus is:
+        ```yaml
+        TaskStatus:
+          type: string
+          enum: [Pending, InProgress, Completed, Cancelled]
+        ```
+      parameters:
+        - name: status
+          in: query
+          description: Filter by task status (should show as dropdown)
+          schema:
+            nullable: true
+            allOf:
+              - $ref: "#/components/schemas/TaskStatus"
+        - name: priorities
+          in: query
+          description: Filter by multiple priorities (should show as multi-select)
+          schema:
+            type: array
+            items:
+              allOf:
+                - $ref: "#/components/schemas/Priority"
+      responses:
+        "200":
+          description: A list of tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    status:
+                      $ref: "#/components/schemas/TaskStatus"
+                    priority:
+                      $ref: "#/components/schemas/Priority"
+
+  /allof-incompatible-types:
+    get:
+      tags:
+        - allOf
+      summary: allOf with Incompatible Types
+      description: |
+        Schema with a property whose allOf contains incompatible primitive types
+        (string and integer).
+
+        Schema:
+        ```yaml
+        type: object
+        properties:
+          numero:
+            allOf:
+              - type: string
+              - type: integer
+          name:
+            type: string
+        ```
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  numero:
+                    allOf:
+                      - type: string
+                      - type: integer
+                  name:
+                    type: string
+
+  /allof-empty-object-properties:
+    get:
+      tags:
+        - allOf
+      summary: allOf with explicit empty object properties
+      description: |
+        Demonstrates an intentional empty object schema (properties: {}) to ensure
+        the renderer still shows the object shape rather than hiding it.
+
+        Schema:
+        ```yaml
+        type: object
+        properties:
+          metadata:
+            type: object
+            properties: {}
+          name:
+            type: string
+        ```
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  metadata:
+                    type: object
+                    properties: {}
+                  name:
+                    type: string
+
+  /allof-multiple-oneof:
+    post:
+      tags:
+        - allOf
+      summary: allOf with multiple oneOf constraints
+      description: |
+        Schema demonstrating allOf containing multiple independent oneOf constraints.
+        The object must satisfy one option from each oneOf group AND include shared properties.
+
+        This pattern is used when multiple independent constraints must all be satisfied,
+        similar to the security-rules schema where a rule must be one policy type AND exist in one scope.
+
+        Schema:
+        ```yaml
+        type: object
+        allOf:
+          # Constraint 1: Must be one of these types
+          - oneOf:
+              - title: standard
+                type: object
+                properties:
+                  type:
+                    type: string
+                    enum: [standard]
+                  priority:
+                    type: integer
+                    minimum: 1
+                    maximum: 10
+                required: [type, priority]
+              - title: express
+                type: object
+                properties:
+                  type:
+                    type: string
+                    enum: [express]
+                  expedited:
+                    type: boolean
+                required: [type, expedited]
+          
+          # Constraint 2: Must exist in one of these scopes
+          - oneOf:
+              - title: global
+                type: object
+                properties:
+                  scope:
+                    type: string
+                    enum: [global]
+                required: [scope]
+              - title: regional
+                type: object
+                properties:
+                  scope:
+                    type: string
+                    enum: [regional]
+                  region:
+                    type: string
+                required: [scope, region]
+              - title: local
+                type: object
+                properties:
+                  scope:
+                    type: string
+                    enum: [local]
+                  location:
+                    type: string
+                required: [scope, location]
+
+        # Shared properties that apply regardless of which options are chosen
+        properties:
+          id:
+            type: string
+            format: uuid
+          name:
+            type: string
+          description:
+            type: string
+          enabled:
+            type: boolean
+            default: true
+        required: [id, name]
+        ```
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              allOf:
+                # Constraint 1: Must be one of these types
+                - oneOf:
+                    - title: standard
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum: [standard]
+                          description: Standard processing type
+                          example: standard
+                        priority:
+                          type: integer
+                          minimum: 1
+                          maximum: 10
+                          description: Priority level for standard type
+                          example: 5
+                      required: [type, priority]
+                    - title: express
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum: [express]
+                          description: Express processing type
+                          example: express
+                        expedited:
+                          type: boolean
+                          description: Enable expedited processing
+                          default: true
+                      required: [type, expedited]
+
+                # Constraint 2: Must exist in one of these scopes
+                - oneOf:
+                    - title: global
+                      type: object
+                      properties:
+                        scope:
+                          type: string
+                          enum: [global]
+                          description: Global scope
+                          example: global
+                      required: [scope]
+                    - title: regional
+                      type: object
+                      properties:
+                        scope:
+                          type: string
+                          enum: [regional]
+                          description: Regional scope
+                          example: regional
+                        region:
+                          type: string
+                          pattern: ^[a-z]{2}-[a-z]+-\d+$
+                          description: AWS-style region identifier
+                          example: us-west-2
+                      required: [scope, region]
+                    - title: local
+                      type: object
+                      properties:
+                        scope:
+                          type: string
+                          enum: [local]
+                          description: Local scope
+                          example: local
+                        location:
+                          type: string
+                          maxLength: 100
+                          description: Specific location identifier
+                          example: datacenter-1
+                      required: [scope, location]
+
+              # Shared properties
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  description: Unique identifier
+                  example: 123e4567-e89b-12d3-a456-426655440000
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                  description: Resource name
+                  example: my-resource
+                description:
+                  type: string
+                  maxLength: 1024
+                  description: Optional description
+                  example: This is a test resource
+                enabled:
+                  type: boolean
+                  description: Whether the resource is enabled
+                  default: true
+              required: [id, name]
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                  message:
+                    type: string
+                    example: Resource created successfully
+
+components:
+  schemas:
+    # Enum schemas for allOf parameter tests
+    TaskStatus:
+      type: string
+      description: The status of a task
+      enum:
+        - Pending
+        - InProgress
+        - Completed
+        - Cancelled
+
+    Priority:
+      type: string
+      description: Priority level
+      enum:
+        - Low
+        - Medium
+        - High
+        - Critical
+
+    # New schemas for Books demonstration
+    BookBase:
+      type: object
+      required:
+        - id
+        - title
+        - author
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier for the book
+          example: 1234567890
+        title:
+          type: string
+          description: The title of the book
+          example: "The Great Gatsby"
+        author:
+          type: string
+          description: The author of the book
+          example: "F. Scott Fitzgerald"
+
+    AdditionalBookInfo:
+      type: object
+      properties:
+        publishedDate:
+          type: string
+          format: date
+          description: The date the book was published
+          example: "2021-01-01"
+        genre:
+          type: string
+          description: The genre of the book
+          example: "Fiction"
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags associated with the book
+          example: ["Fiction", "Mystery"]
+
+    Book:
+      allOf:
+        - $ref: "#/components/schemas/BookBase"
+        - $ref: "#/components/schemas/AdditionalBookInfo"
+
+    CategorizedBook:
+      allOf:
+        - $ref: "#/components/schemas/BookBase"
+        - $ref: "#/components/schemas/AdditionalBookInfo"
+      properties:
+        category:
+          type: string
+          description: The category of the book
+          example: "Fiction"

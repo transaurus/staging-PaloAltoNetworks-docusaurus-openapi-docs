@@ -1,0 +1,320 @@
+openapi: 3.0.1
+info:
+  title: AnyOf Variations API
+  description: Demonstrates various anyOf combinations.
+  version: 1.0.0
+tags:
+  - name: anyOf
+    description: anyOf tests
+paths:
+  /anyof-primitives:
+    get:
+      tags:
+        - anyOf
+      summary: anyOf with primitives
+      description: |
+        Schema:
+        ```yaml
+        anyOf:
+          - type: string
+          - type: integer
+          - type: boolean
+          - type: null
+          - enum:
+              - dealValue
+              - price
+              - userRating
+              - popularityScore
+        ```
+
+        Note: The last option is an inline enum without an explicit type,
+        which is valid JSON Schema. The enum values should be displayed.
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - type: string
+                  - type: integer
+                  - type: boolean
+                  - type: "null"
+                  - enum:
+                      - dealValue
+                      - price
+                      - userRating
+                      - popularityScore
+
+  /anyof-oneof:
+    get:
+      tags:
+        - anyOf
+      summary: anyOf with oneOf
+      description: |
+        Schema:
+        ```yaml
+        anyOf:
+          - oneOf:
+            - type: string
+            - type: integer
+          - type: boolean
+        ```
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - oneOf:
+                      - type: string
+                        title: A string
+                      - type: integer
+                        title: An integer
+                    title: A string or integer
+                  - type: boolean
+                    title: A boolean
+                title: A string or integer, or a boolean
+
+  /anyof-with-properties-in-array-item:
+    get:
+      tags:
+        - anyOf
+      summary: anyOf with Properties in Array Item
+      description: |
+        Schema:
+        ```yaml
+        type: array
+        items:
+          type: object
+          anyOf:
+            - type: object
+              title: Item
+              properties:
+                orderNo:
+                  type: string
+                  example: "123456"
+            - type: object
+              title: Error
+              properties:
+                error:
+                  type: string
+                  example: "Invalid order number"
+          properties:
+            name:
+              type: string
+              example: pencil
+          required:
+            - orderNo
+        ```
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  anyOf:
+                    - type: object
+                      title: Item
+                      properties:
+                        orderNo:
+                          type: string
+                          example: "123456"
+                    - type: object
+                      title: Error
+                      properties:
+                        error:
+                          type: string
+                          example: "Invalid order number"
+                  properties:
+                    name:
+                      type: string
+                      example: pencil
+                  required:
+                    - orderNo
+
+  /anyof-nested-oneof-with-properties:
+    post:
+      tags:
+        - anyOf
+      summary: anyOf with nested oneOf and properties at same level
+      description: |
+        Schema demonstrating complex nested structures where:
+        - An anyOf contains multiple oneOf arrays
+        - oneOf schemas have properties without explicit type
+        - A schema has both oneOf and properties at the same level (layer3)
+
+        This pattern is similar to the ethernet-interfaces schema.
+
+        Schema:
+        ```yaml
+        type: object
+        properties:
+          id:
+            type: string
+          name:
+            type: string
+        anyOf:
+          - oneOf:
+            - title: tap
+              properties:
+                tap:
+                  type: object
+                  default: {}
+            - title: layer2
+              required:
+                - layer2
+              properties:
+                layer2:
+                  type: object
+                  properties:
+                    vlan-tag:
+                      type: integer
+            - title: layer3
+              required:
+                - layer3
+              properties:
+                layer3:
+                  type: object
+                  oneOf:
+                    - title: static
+                      type: object
+                      properties:
+                        ip:
+                          type: array
+                          items:
+                            type: string
+                    - title: dhcp
+                      type: object
+                      properties:
+                        dhcp-enabled:
+                          type: boolean
+                  properties:
+                    mtu:
+                      type: integer
+                      default: 1500
+                    management-profile:
+                      type: string
+          - oneOf:
+            - title: folder
+              type: object
+              properties:
+                folder:
+                  type: string
+              required:
+                - folder
+            - title: snippet
+              type: object
+              properties:
+                snippet:
+                  type: string
+              required:
+                - snippet
+        ```
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: UUID of the resource
+                  example: 123e4567-e89b-12d3-a456-426655440000
+                name:
+                  type: string
+                  description: Interface name
+                  example: ethernet1/1
+              anyOf:
+                - oneOf:
+                    - title: tap
+                      properties:
+                        tap:
+                          type: object
+                          default: {}
+                    - title: layer2
+                      required:
+                        - layer2
+                      properties:
+                        layer2:
+                          type: object
+                          properties:
+                            vlan-tag:
+                              description: Assign interface to VLAN tag
+                              type: integer
+                              minimum: 1
+                              maximum: 4094
+                    - title: layer3
+                      required:
+                        - layer3
+                      properties:
+                        layer3:
+                          type: object
+                          oneOf:
+                            - title: static
+                              type: object
+                              properties:
+                                ip:
+                                  description: Interface IP addresses
+                                  type: array
+                                  items:
+                                    type: string
+                                    example: 192.168.1.1/24
+                            - title: dhcp
+                              type: object
+                              properties:
+                                dhcp-enabled:
+                                  description: Enable DHCP client
+                                  type: boolean
+                                  default: true
+                          properties:
+                            mtu:
+                              description: Maximum transmission unit
+                              type: integer
+                              minimum: 576
+                              maximum: 9216
+                              default: 1500
+                            management-profile:
+                              description: Interface management profile
+                              type: string
+                              maxLength: 31
+                - oneOf:
+                    - type: object
+                      title: folder
+                      properties:
+                        folder:
+                          type: string
+                          pattern: ^[a-zA-Z\d-_\. ]+$
+                          maxLength: 64
+                          description: The folder in which the resource is defined
+                          example: My Folder
+                      required:
+                        - folder
+                    - type: object
+                      title: snippet
+                      properties:
+                        snippet:
+                          type: string
+                          pattern: ^[a-zA-Z\d-_\. ]+$
+                          maxLength: 64
+                          description: The snippet in which the resource is defined
+                          example: My Snippet
+                      required:
+                        - snippet
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
